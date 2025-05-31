@@ -10,12 +10,18 @@ license = "MIT"
 python = "^3.12"
 sounddevice = "^0.4"
 numpy = "^1.26"
-whispercpp = "^1.6"
 ffmpeg-python = "^0.2"
 requests = "^2.31"
 python-dotenv = "^1.0"
 click = "^8.1"
+rich = "^13.7"
+urllib3 = "^2.0"
+certifi = "^2023.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^7.0"
 flake8 = "^6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

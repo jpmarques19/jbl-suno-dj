@@ -18,5 +18,12 @@ poetry.lock
 # audio test files
 test.wav
 
+# Generated music files
+downloads/
+*.mp3
+*.wav
+*.flac
+*.m4a
+
 # dotenv
 .env
