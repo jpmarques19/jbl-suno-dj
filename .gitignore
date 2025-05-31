@@ -1,0 +1,22 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+env/
+
+# Poetry lock files
+poetry.lock
+
+# IDE/editor files
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# audio test files
+test.wav
+
+# dotenv
+.env
