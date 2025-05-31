@@ -107,7 +107,14 @@ python3 suno_poc.py --credits
 
 ## 🧪 Testing
 
-Run the test suite to verify everything is working:
+### Unit Tests (No API calls)
+Run the comprehensive test suite without consuming credits:
+```bash
+poetry run pytest tests/
+```
+
+### Integration Tests (May consume credits)
+Run integration tests that make actual API calls:
 ```bash
 python3 test_suno_poc.py
 ```
@@ -121,10 +128,14 @@ jbl-suno-dj/
 │   ├── config.py          # Configuration management
 │   ├── suno_client.py     # Suno AI client wrapper
 │   └── poc_app.py         # CLI application
+├── tests/                 # Unit tests (no API calls)
+│   ├── __init__.py
+│   ├── test_config.py     # Configuration tests
+│   ├── test_suno_client.py # Client tests with mocks
+│   └── test_poc_app.py    # CLI application tests
 ├── suno_poc.py            # Entry point script
-├── test_suno_poc.py       # Test suite
-├── .env.example           # Environment template
-├── pyproject.toml         # Dependencies
+├── test_suno_poc.py       # Integration tests (API calls)
+├── pyproject.toml         # Poetry dependencies
 └── README.md
 ```
 
@@ -181,7 +192,8 @@ python3 suno_poc.py --prompt "Happy birthday song" --tags "cheerful, acoustic, f
 
 ### Getting Help
 
-- Check the test suite: `python3 test_suno_poc.py`
+- Run unit tests: `poetry run pytest tests/`
+- Run integration tests: `python3 test_suno_poc.py`
 - Enable debug mode: Set `DEBUG=true` in your `.env` file
 - Check your credits: `python3 suno_poc.py --credits`
 

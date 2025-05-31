@@ -8,19 +8,26 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-sounddevice = "^0.4"
-numpy = "^1.26"
-ffmpeg-python = "^0.2"
+# Core dependencies for Suno AI integration
 requests = "^2.31"
 python-dotenv = "^1.0"
 click = "^8.1"
 rich = "^13.7"
+# Audio processing (for future JBL integration)
+sounddevice = "^0.4"
+numpy = "^1.26"
+ffmpeg-python = "^0.2"
+# Network and security
 urllib3 = "^2.0"
 certifi = "^2023.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0"
+pytest-mock = "^3.12"
 flake8 = "^6.0"
+
+[tool.poetry.scripts]
+suno-poc = "suno_poc:main"
 
 [build-system]
 requires = ["poetry-core"]
