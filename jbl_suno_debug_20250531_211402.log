@@ -1,0 +1,40 @@
+[21:14:02.308] [INFO ] [   0.0s] ============================================================
+[21:14:02.309] [INFO ] [   0.0s] 🎯 JBL-SUNO-DJ COMPLETE WORKFLOW TEST
+[21:14:02.309] [INFO ] [   0.0s] ============================================================
+[21:14:02.309] [INFO ] [   0.0s] 🚀 Starting complete voice-to-music-to-JBL workflow test
+[21:14:02.309] [INFO ] [   0.0s] 📁 Debug log will be saved to: jbl_suno_debug_20250531_211402.log
+[21:14:02.309] [INFO ] [   0.0s] 💡 All output will remain visible for copy/paste debugging
+[21:14:02.309] [INFO ] [   0.0s] ============================================================
+[21:14:02.309] [INFO ] [   0.0s] 🎯 STEP 1: INITIALIZATION
+[21:14:02.309] [INFO ] [   0.0s] ============================================================
+[21:14:02.309] [INFO ] [   0.0s] 🔧 Initializing VoiceToSunoJBL application...
+[21:14:04.732] [INFO ] [   2.4s] ✅ App initialization successful
+[21:14:04.733] [INFO ] [   2.4s] 📊 Microphone energy threshold: 17913.608663147523
+[21:14:04.733] [INFO ] [   2.4s] ============================================================
+[21:14:04.733] [INFO ] [   2.4s] 🎯 STEP 2: JBL SPEAKER CONNECTION
+[21:14:04.733] [INFO ] [   2.4s] ============================================================
+[21:14:04.733] [INFO ] [   2.4s] 🔊 Testing JBL Flip Essentials connection...
+[21:14:04.748] [INFO ] [   2.4s] ✅ JBL speaker set as default audio device
+[21:14:04.748] [INFO ] [   2.4s] ============================================================
+[21:14:04.748] [INFO ] [   2.4s] 🎯 STEP 3: VOICE RECOGNITION
+[21:14:04.748] [INFO ] [   2.4s] ============================================================
+[21:14:04.749] [INFO ] [   2.4s] 🎤 Testing voice recognition with countdown timer...
+[21:14:04.749] [INFO ] [   2.4s] 💡 When prompted, say something like:
+[21:14:04.749] [INFO ] [   2.4s]    - 'Create a happy song'
+[21:14:04.749] [INFO ] [   2.4s]    - 'Generate rock music'
+[21:14:04.749] [INFO ] [   2.4s]    - 'Make electronic dance music'
+[21:14:10.020] [INFO ] [   7.7s] 🎤 Starting voice recognition test...
+[21:14:17.812] [INFO ] [  15.5s] ⏱️  Voice recognition took 7.8 seconds
+[21:14:17.812] [INFO ] [  15.5s] ✅ Voice recognition SUCCESS: 'create'
+[21:14:17.812] [INFO ] [  15.5s] ============================================================
+[21:14:17.813] [INFO ] [  15.5s] 🎯 STEP 4: MUSIC GENERATION
+[21:14:17.813] [INFO ] [  15.5s] ============================================================
+[21:14:17.813] [INFO ] [  15.5s] 🎵 Generating music with prompt: 'create'
+[21:14:17.813] [INFO ] [  15.5s] 💰 Using V3_5 model for cost efficiency
+[21:14:19.873] [INFO ] [  17.6s] ✅ Music generation request successful in 2.1s
+[21:14:19.874] [INFO ] [  17.6s] 🆔 Task ID: 8bbb4eefa8750f2fe47b7271783b60e4
+[21:14:19.874] [INFO ] [  17.6s] ============================================================
+[21:14:19.874] [INFO ] [  17.6s] 🎯 STEP 5: WAITING FOR MUSIC COMPLETION
+[21:14:19.874] [INFO ] [  17.6s] ============================================================
+[21:14:19.874] [INFO ] [  17.6s] ⏳ Waiting for Suno to generate your music...
+[21:14:19.874] [INFO ] [  17.6s] 📡 This typically takes 1-3 minutes
