@@ -12,12 +12,27 @@ import subprocess
 import sys
 import os
 import threading
+import tempfile
+import wave
 from typing import Optional, Dict, List
+
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv is optional
 
 # Configuration
 API_KEY = "4e2feeb494648a5f5845dd5b65558544"
 BASE_URL = "https://apibox.erweima.ai"
 JBL_DEVICE = "bluez_output.04_CB_88_B8_CF_72.1"  # Your JBL Flip Essentials
+
+# Speech Recognition Configuration
+SPEECH_SERVICE = "whisper"  # Options: "google", "whisper", "deepgram", "azure"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Set this for Whisper API
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")  # Set this for Deepgram
+AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")  # Set this for Azure Speech
 
 class VoiceToSunoJBL:
     def __init__(self):
@@ -104,29 +119,8 @@ class VoiceToSunoJBL:
 
             print(f"\r🔄 Processing {record_seconds} seconds of audio... Please wait.              ")
 
-            try:
-                # Use Google's free speech recognition with timeout
-                text = self.recognizer.recognize_google(audio, show_all=False)
-                if text and text.strip():
-                    print(f"\r✅ I heard: '{text}'                                   ")
-                    self.log(f"🎯 Successfully recognized: '{text}'", "green")
-                    return text.strip()
-                else:
-                    print(f"\r❓ Empty recognition result                             ")
-                    self.log("💡 Try speaking louder or more clearly", "yellow")
-                    return None
-            except sr.UnknownValueError:
-                print(f"\r❓ Could not understand the audio                       ")
-                self.log("💡 Speech was not clear enough for recognition", "yellow")
-                return None
-            except sr.RequestError as e:
-                print(f"\r❌ Google Speech API error                              ")
-                self.log(f"❌ Speech API error: {e}", "red")
-                return None
-            except Exception as e:
-                print(f"\r❌ Recognition processing error                         ")
-                self.log(f"❌ Processing error: {e}", "red")
-                return None
+            # Use the configured speech recognition service
+            return self.process_audio_with_service(audio)
 
         except Exception as e:
             listening = False
@@ -136,7 +130,153 @@ class VoiceToSunoJBL:
             import traceback
             self.log(f"❌ Traceback: {traceback.format_exc()}", "red")
             return None
-    
+
+    def process_audio_with_service(self, audio) -> Optional[str]:
+        """Process audio using the configured speech recognition service."""
+        try:
+            if SPEECH_SERVICE == "whisper" and OPENAI_API_KEY:
+                return self.recognize_with_whisper(audio)
+            elif SPEECH_SERVICE == "deepgram" and DEEPGRAM_API_KEY:
+                return self.recognize_with_deepgram(audio)
+            elif SPEECH_SERVICE == "azure" and AZURE_SPEECH_KEY:
+                return self.recognize_with_azure(audio)
+            else:
+                # Fallback to Google (free)
+                return self.recognize_with_google(audio)
+        except Exception as e:
+            self.log(f"❌ Speech recognition error: {e}", "red")
+            return None
+
+    def recognize_with_google(self, audio) -> Optional[str]:
+        """Use Google's free speech recognition."""
+        try:
+            text = self.recognizer.recognize_google(audio, show_all=False)
+            if text and text.strip():
+                print(f"\r✅ Google: '{text}'                                   ")
+                self.log(f"🎯 Google recognized: '{text}'", "green")
+                return text.strip()
+            else:
+                print(f"\r❓ Google: Empty result                                ")
+                return None
+        except sr.UnknownValueError:
+            print(f"\r❓ Google: Could not understand audio                   ")
+            return None
+        except sr.RequestError as e:
+            print(f"\r❌ Google: API error                                    ")
+            self.log(f"❌ Google API error: {e}", "red")
+            return None
+
+    def recognize_with_whisper(self, audio) -> Optional[str]:
+        """Use OpenAI Whisper API for superior accuracy."""
+        try:
+            # Save audio to temporary WAV file
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+                temp_path = temp_file.name
+
+            # Convert audio to WAV format
+            with wave.open(temp_path, 'wb') as wav_file:
+                wav_file.setnchannels(1)  # Mono
+                wav_file.setsampwidth(audio.sample_width)
+                wav_file.setframerate(audio.sample_rate)
+                wav_file.writeframes(audio.frame_data)
+
+            # Call OpenAI Whisper API
+            headers = {
+                'Authorization': f'Bearer {OPENAI_API_KEY}'
+            }
+
+            with open(temp_path, 'rb') as audio_file:
+                files = {
+                    'file': ('audio.wav', audio_file, 'audio/wav'),
+                    'model': (None, 'whisper-1'),
+                    'language': (None, 'en')
+                }
+
+                response = requests.post(
+                    'https://api.openai.com/v1/audio/transcriptions',
+                    headers=headers,
+                    files=files,
+                    timeout=30
+                )
+
+            # Clean up temp file
+            os.unlink(temp_path)
+
+            if response.status_code == 200:
+                result = response.json()
+                text = result.get('text', '').strip()
+                if text:
+                    print(f"\r✅ Whisper: '{text}'                                 ")
+                    self.log(f"🎯 Whisper recognized: '{text}'", "green")
+                    return text
+                else:
+                    print(f"\r❓ Whisper: Empty result                              ")
+                    return None
+            else:
+                print(f"\r❌ Whisper: API error {response.status_code}           ")
+                self.log(f"❌ Whisper API error: {response.text}", "red")
+                return None
+
+        except Exception as e:
+            print(f"\r❌ Whisper: Processing error                           ")
+            self.log(f"❌ Whisper error: {e}", "red")
+            # Clean up temp file if it exists
+            try:
+                if 'temp_path' in locals():
+                    os.unlink(temp_path)
+            except:
+                pass
+            return None
+
+    def recognize_with_deepgram(self, audio) -> Optional[str]:
+        """Use Deepgram API for high accuracy."""
+        try:
+            headers = {
+                'Authorization': f'Token {DEEPGRAM_API_KEY}',
+                'Content-Type': 'audio/wav'
+            }
+
+            # Convert audio to bytes
+            audio_data = audio.get_wav_data()
+
+            response = requests.post(
+                'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true',
+                headers=headers,
+                data=audio_data,
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                transcript = result.get('results', {}).get('channels', [{}])[0].get('alternatives', [{}])[0].get('transcript', '').strip()
+                if transcript:
+                    print(f"\r✅ Deepgram: '{transcript}'                          ")
+                    self.log(f"🎯 Deepgram recognized: '{transcript}'", "green")
+                    return transcript
+                else:
+                    print(f"\r❓ Deepgram: Empty result                             ")
+                    return None
+            else:
+                print(f"\r❌ Deepgram: API error {response.status_code}         ")
+                self.log(f"❌ Deepgram API error: {response.text}", "red")
+                return None
+
+        except Exception as e:
+            print(f"\r❌ Deepgram: Processing error                          ")
+            self.log(f"❌ Deepgram error: {e}", "red")
+            return None
+
+    def recognize_with_azure(self, audio) -> Optional[str]:
+        """Use Azure Speech Services."""
+        try:
+            # Azure Speech SDK would be needed here
+            # For now, fallback to Google
+            self.log("⚠️  Azure Speech not implemented yet, using Google", "yellow")
+            return self.recognize_with_google(audio)
+        except Exception as e:
+            self.log(f"❌ Azure error: {e}", "red")
+            return None
+
     def generate_music(self, prompt: str) -> Optional[str]:
         """Generate music with Suno API."""
         self.log(f"🎵 Generating music: '{prompt}'", "magenta")
